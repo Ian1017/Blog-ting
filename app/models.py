@@ -1,54 +1,45 @@
-{ % extends 'base.html'%}
-    {% block content % }
-    <div class = "container" style = "background-color: white" >
-       <div class = "content-section" >
-            <form method = "POST" action = "" >
-              {{form.hidden_tag()}}
-               <fieldset class = "form-group" >
-                    <legend class = "border-bottom mb-4" > Log In < /legend >
-                    <div class = "form-group" >
-                      {{form.email.label(class="form-control-label")}}
-                        {% if form.email.errors % }
-                          {{form.email(class="form-control form-control-lg is-invalid")}}
-                           <div class = "invalid-feedback" >
-                                {% for error in form.email.errors % }
-                                    <span > {{error}} < /span >
-                                {% endfor % }
-                            </div >
-                        { % else % }
-                          {{form.email(class="form-control form-control-lg")}}
-                        { % endif % }
-                    </div >
-                    <div class = "form-group" >
-                      {{form.password.label(class="form-control-label")}}
-                        { % if form.password.errors % }
-                          {{form.password(class="form-control form-control-lg is-invalid")}}
-                           <div class = "invalid-feedback" >
-                                { % for error in form.password.errors % }
-                                    <span > {{ error }} < /span>
-                                { % endfor % }
-                            </div >
-                        { % else % }
-                          {{form.password(class="form-control form-control-lg")}}
-                        { % endif % }
-                    </div >
-                    <div class = "form-check" >
-                      {{form.remember(class="form-check-input")}}
-                       {{form.remember.label(class="form-check-label")}}
-                    </div >
-                </fieldset >
-                <div class = "form-group" >
-                  {{form.submit(class="btn btn-outline-info")}}
-                </div >
-                <small class = "text-muted ml-2" >
-                    <a href = "#" > Forgot Password?</a>
-                </small >
-            </form >
-        </div >
-        <div class = "border-top pt-3" >
-           <small class = "text-muted" >
-                Create New Account? < a class = "ml-2" href ="{{ url_for('auth.register') }}">Sign Up</a>
-            </small >
-        </div >
-    </div >
-{% endblock%}
+from . import db
+from werkzeug.security import generate_password_hash,check_password_hash
+from flask_login import UserMixin
+from . import login_manager
+from datetime import datetime
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+class User(UserMixin, db.Model):
+    __table__= 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(255), index=True)
+    firstname = db.Column(db.String(255))
+    lastname = db.Column(db.String(255))
+    email = db.Column(db.String(255), unique=True, index=True)
+    bio = db.Column(db.String(255))
+    profile_pic_path = db.Column(db.String())
+    password_hash = db.Column(db.String(255))
+    pass_secure = db.Column(db.String(255))
+
+    blogs = db.relationship('Blog', backref='users', lazy="dynamic")
+
+    comments = db.relationship('Comment', backref='user', lazy="dynamic")
+
+    def save_user(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @property
+    def password(self):
+        raise AttributeError('You cannot read the password attribute')
+
+    @password.setter
+    def password(self,password):
+        self.pass_secure = generate_password_hash(password)
+
+    def verify_password(self,password):
+        return check_password_hash(self.pass_secure,password)
+
+    def __repr__(self):
+        return f'User {self.username}'
+
