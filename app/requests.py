@@ -2,7 +2,7 @@ import requests
 from config import Config
 from .models import Quotes
 
-quotes_url = Config.quotes_url
+quotes_url = Config.QUOTES_URL
 
 def getQuotes():
     random_quote = requests.get(quotes_url)
