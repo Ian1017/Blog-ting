@@ -43,3 +43,69 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f'User {self.username}'
 
+class Blog(db.Model):
+    __tablename__ = 'blogs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    blog_title = db.Column(db.String)
+    blog_content = db.Column(db.String(8000))
+    username = db.Column(db.String)
+    posted = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    likes = db.Column(db.Integer)
+    dislikes = db.Column(db.Integer)
+
+    comments = db.relationship('Comment', backref='blog_id', lazy="dynamic")
+
+    def save_blog(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @classmethod
+    def get_blog(cls,id):
+        blog = Blog.query.filter_by(id=id).first()
+
+        return blog
+
+    @classmethod
+    def get_all_blogs(cls):
+        '''
+        Function that queries the database and returns all the pitches
+        '''
+        return Blog.query.all()
+
+    @classmethod
+    def count_blogs(cls,uname):
+        user = user.query.filter_by(username=uname).first()
+        blogs = Blog.query.filter_by(user_id=user.id).all()
+
+        blogs_count = 0
+        for blog in blogs:
+            blogs_count += 1
+        
+        return blogs_count
+
+
+class Comment(db.Model):
+    __tablename__ = 'comments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    comment = db.Column(db.String(1000))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    blog = db.Column(db.Integer, db.ForeignKey("blogs.id"))
+
+    def save_comment(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @classmethod
+    def get_comments(cls,blog):
+        comments = Comment.query.filter_by(blog_id=blog).all()
+        return comments
+
+class Quotes():
+    def __init__(self,author,quote,permalink):
+        self.author = author 
+        self.quote = quote
+        self.permalink = permalink
+        
