@@ -19,10 +19,13 @@ def index():
     quote1 = getQuotes()
     quote2 = getQuotes()
     quote3 = getQuotes()
-    # quote4 = getQuotes()
     # quote5 = getQuotes()
     # quote6 = getQuotes()
-
+    # quote7 = getQuotes()
+    # quote8 = getQuotes()
+    # quote9 = getQuotes()
+    # quote10 = getQuotes()
+    # quote11 = getQuotes()
 
     return render_template('index.html', title = title, blogs=blogs, quote=quote, quote1=quote1, quote2=quote2, quote3=quote3)
 
