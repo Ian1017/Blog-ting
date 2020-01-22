@@ -16,6 +16,7 @@ mail = Mail()
 
 photos = UploadSet('photos', IMAGES)
 
+connection = psycopg2.connect(database="gps_heatmap", user="postgres", password="1234", host="localhost", port=5433)
 
 def create_app(config_name):
 
