@@ -4,7 +4,7 @@ from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
-from flask_uploads import UploadSet, configure_uploads, IMAGES
+from flask_uploads import UploadSet,configure_uploads,IMAGES
 
 bootstrap = Bootstrap()
 db = SQLAlchemy()
@@ -14,15 +14,11 @@ login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
 mail = Mail()
 
-photos = UploadSet('photos', IMAGES)
-
-connection = psycopg2.connect(database="gps_heatmap", user="postgres", password="1234", host="localhost", port=5433)
-
+photos = UploadSet('photos',IMAGES)
 def create_app(config_name):
-
     app = Flask(__name__)
 
-    # Creating app configuration
+    #Creating app configuration
     app.config.from_object(config_options[config_name])
 
     # Initializing flask extensions
@@ -31,14 +27,14 @@ def create_app(config_name):
     login_manager.init_app(app)
     mail.init_app(app)
 
-    # register blueprints
+    #register blueprints
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
     from .auth import auth as auth_blueprint
-    app.register_blueprint(auth_blueprint, url_prefix='/authenticate')
+    app.register_blueprint(auth_blueprint,url_prefix = '/authenticate')
 
     # configure UploadSet
-    configure_uploads(app, photos)
+    configure_uploads(app,photos)
 
     return app
